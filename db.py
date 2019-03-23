@@ -83,7 +83,7 @@ def view_all_db():
     print('------------------------Sales-------------------------------------------------------------------')
     rows = cur.fetchall()
     for r in rows:
-        print(f"[id]  {r[0]}  [gas_station]  {r[1]}  [date]  {r[2]}  [fuel]  {r[3]}  [salesman]  {r[4]}  [liters]  {r[5]}")
+        print(f"[id]  {r[0]}  [gas_station]  {r[1]}  [date]  {r[2]}  [type]  {r[3]}  [salesman]  {r[4]}  [liters]  {r[5]}")
     con.commit()
     cur.close()
     con.close()
@@ -225,9 +225,56 @@ def random_create():
 def search_by_date_sales():
     con = server_conncetion()
     cur = con.cursor()
-    date1 = print('From date ')
-    date2 = print('To date ')
-    cur.execute(f"SELECT * FROM sales WHERE DATE(date)  between '{date1}' and '{date2}'")
+    date1 = input('From date ')
+    date2 = input('To date ')
+    cur.execute(f"SELECT id, gas_station, date, fuel, salesman, liters FROM sales WHERE DATE(date)  between '{date1}' and '{date2}'")
     rows = cur.fetchall()
     for r in rows:
-        print(f"[id] {r[0]}  [gas_station]  {r[1]}  [date]  {r[2]}   [fuel]  {r[3]}   [salesman]  {r[4]} [liters] {[5]}")
+        print(f"[id] {r[0]}  [gas_station]  {r[1]}  [date]  {r[2]}   [fuel]  {r[3]}  [salesman]  {r[4]} [liters] {[5]}")
+
+def search_by_listed_fuel():
+    con = server_conncetion()
+    cur = con.cursor()
+    value = input('Enter True or False')
+    cur.execute(f"SELECT id, listed, price, provider, type FROM fuel WHERE listed = '{value}' ")
+    rows = cur.fetchall()
+    for r in rows:
+        print(f"[id] {r[0]}  [listed]  {r[1]}  [price]  {r[2]}   [provider]  {r[3]}  [type]  {r[4]}")
+
+def search_2_2():
+    con = server_conncetion()
+    cur = con.cursor()
+    date1 = input('From date ')
+    date2 = input('To date ')
+    value = input('Is it listed? Input True or False')
+    cur.execute(f"SELECT fuel.type, sales.salesman, sales.date  FROM fuel "
+                f"INNER JOIN sales ON fuel.type = sales.fuel  WHERE sales.date"
+                f"  between '{date1}' and '{date2}' AND fuel.listed = {value}")
+    rows = cur.fetchall()
+    for r in rows:
+        print(f"{r[0]} {r[1]} {r[2]}")
+
+def word_search():
+    con = server_conncetion()
+    cur = con.cursor()
+    table = input('Enter table ')
+    column = input('Enter column name ')
+    phrase = input('Enter phrase you want to find ')
+    if table == 'fuel':
+        cur.execute(f"SELECT * FROM fuel WHERE {column} LIKE '%{phrase}%'")
+        rows = cur.fetchall()
+        for r in rows:
+            print(f"[id] {r[0]}  [listed]  {r[1]}  [price]  {r[2]}   [provider]  {r[3]}   [type]  {r[4]}")
+    if table == 'providers':
+        cur.execute(f"SELECT * FROM providers WHERE {column} LIKE '%{phrase}%'")
+        rows = cur.fetchall()
+        for r in rows:
+            print(f"[id]  {r[0]}  [name]  {r[1]}  [phone_number]  {r[2]}  [city]  {r[3]}")
+    if table == 'sales':
+        cur.execute(f"SELECT id, gas_station, date, fuel, salesman, liters FROM sales WHERE {column} LIKE '%{phrase}%'")
+        rows = cur.fetchall()
+        for r in rows:
+            print(f"[id]  {r[0]}  [gas_station]  {r[1]}  [date]  {r[2]}  [type]  {r[3]}  [salesman]  {r[4]}  [liters]  {r[5]}")
+    else:
+        print('Incorrect Table name, only allowed -> fuel, -> providers, -> sales ')
+

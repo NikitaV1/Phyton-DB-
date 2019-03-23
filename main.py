@@ -1,9 +1,10 @@
 import db
 
 def controller():
-    option = input('0 to QUIT\n1 to SEE DB\n2 to ADD Fuel\n3 to ADD Providers\n'
-                   '4 to ADD Sales\n5 to EDIT DB\n6 to DELETE\n7 to ADD RANDOM\n'
-                   '8 to SEARCH by date\n')
+    option = input('0 to QUIT\n'
+                   '1 to SEE DB    2 to ADD Fuel   3 to ADD Providers   4 to ADD Sales\n'
+                   '5 to EDIT DB   6 to DELETE     7 to ADD RANDOM      8 to SEARCH by date in Sales\n'
+                   '9 to SEARCH boolean in Fuel    10 to SEARCH         11 to SEARCH by text\n')
     if option == '1':
         db.view_all_db()
     elif option == '2':
@@ -20,6 +21,12 @@ def controller():
         db.random_create()
     elif option == '8':
         db.search_by_date_sales()
+    elif option == '9':
+        db.search_by_listed_fuel()
+    elif option == '10':
+        db.search_2_2()
+    elif option == '11':
+        db.word_search()
     elif option == '0':
          global a
          a = bool(0)
