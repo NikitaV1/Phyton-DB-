@@ -1,5 +1,6 @@
 import psycopg2
 import random
+
 def server_conncetion():
     con = psycopg2.connect(
         host = "localhost",
@@ -65,7 +66,6 @@ def add_sales_id():
     return sales_id
 
 
-
 def view_all_db():
     con = server_conncetion()
     cur = con.cursor()
@@ -95,10 +95,15 @@ def create_fuel():
     provider = add_fuel_provider()
     type = add_fuel_type()
     id = add_fuel_id()
-    t = bool(1)
-    cur.execute("INSERT INTO fuel (price, provider, type, id, listed) VALUES (%s, %s, %s, %s, %s)", (price, provider, type, id, t))
-    con.commit()
-    print('Object created in fuel !')
+    t = input('Sales listed ? Write True or False ')
+    cur.execute(f"SELECT name FROM providers WHERE EXISTS (SELECT name FROM providers WHERE name = '{provider}')")
+    rows = cur.fetchone()
+    if rows != None:
+        cur.execute("INSERT INTO fuel (price, provider, type, id, listed) VALUES (%s, %s, %s, %s, %s)", (price, provider, type, id, t))
+        con.commit()
+        print('Object created in fuel !')
+    else:
+        print('There is no such provider --> '+ provider + " in the table Providers")
 
 def create_providers():
     con = server_conncetion()
@@ -120,32 +125,37 @@ def create_sales():
     salesman = add_sales_salesman()
     liters = add_sales_liters()
     id = add_sales_id()
-    cur.execute("INSERT INTO sales (fuel, gas_station, date, salesman, liters, id) VALUES (%s, %s, %s, %s, %s, %s)", (fuel, gas_station, date, salesman, liters, id))
-    con.commit()
-    print('Object created in sales !')
+    cur.execute(f"SELECT type FROM fuel WHERE EXISTS (SELECT type FROM fuel WHERE type = '{fuel}' AND listed = True)")
+    rows = cur.fetchone()
+    if (rows and rows) != None:
+        cur.execute("INSERT INTO sales (fuel, gas_station, date, salesman, liters, id) VALUES (%s, %s, %s, %s, %s, %s)", (fuel, gas_station, date, salesman, liters, id))
+        con.commit()
+        print('Object created in sales !')
+    else:
+        print('There is no such type of fuel --> ' + fuel + "or it is not listed in the table Fuel")
 
 def edit_db():
     con = server_conncetion()
     cur = con.cursor()
     edit = input('Tell me which table you want edit ')
     if edit == 'fuel':
-        column = input('Write your column name')
-        id = input('Tell me id of your element to be edited')
-        newname = input('Write new name of the element')
+        column = input('Write your column name ')
+        id = input('Tell me id of your element to be edited ')
+        newname = input('Write new name of the element ')
         cur.execute(f"UPDATE {edit} SET {column} = '{newname}' where id = '{id}'")
         con.commit()
         print('Object successfully EDITED !')
     elif edit == 'providers':
-        column = input('Write your column name')
-        id = input('Tell me id of your element to be edited')
-        newname = input('Write new name of the element')
+        column = input('Write your column name ')
+        id = input('Tell me id of your element to be edited ')
+        newname = input('Write new name of the element ')
         cur.execute(f"UPDATE {edit} SET {column} = '{newname}' where id = '{id}'")
         con.commit()
         print('Object successfully EDITED !')
     elif edit == 'sales':
-        column = input('Write your column name')
-        id = input('Tell me id of your element to be edited')
-        newname = input('Write new name of the element')
+        column = input('Write your column name ')
+        id = input('Tell me id of your element to be edited ')
+        newname = input('Write new name of the element ')
         cur.execute(f"UPDATE {edit} SET {column} = '{newname}' where id = '{id}'")
         con.commit()
         print('Object successfully EDITED !')
@@ -164,16 +174,16 @@ def delete_db():
         con.commit()
         print('Object successfully DELETED !')
     elif delete == 'providers':
-        column = input('Write your column name')
+        column = input('Write your column name ')
         value = input('> or = or < ')
         info = input('Tell me info ')
         cur.execute(f"DELETE FROM {delete} WHERE {column} {value} '{info}'")
         con.commit()
         print('Object successfully DELETED !')
     elif delete == 'sales':
-        column = input('Write your column name')
+        column = input('Write your column name ')
         value = input('> or = or < ')
-        info = input('Tell me info')
+        info = input('Tell me info ')
         cur.execute(f"DELETE FROM {delete} WHERE {column} {value} '{info}'")
         con.commit()
         print('Object successfully DELETED !')
@@ -195,7 +205,7 @@ def random_create():
         price = random.choice(price_arr)
         type = random.choice(type_arr)
         provider = random.choice(provider_arr)
-        id = input('Tell me id of the element to be added')
+        id = input('Tell me id of the element to be added ')
         listed = bool(1)
         cur.execute("INSERT INTO fuel (price, type, provider, id, listed) values (%s, %s, %s, %s, %s)", (price, type, provider, id, listed))
         con.commit()
@@ -204,7 +214,7 @@ def random_create():
         name = random.choice(provider_arr)
         city = random.choice(city_arr)
         phone_number = random.choice(phone_arr)
-        id = input('Tell me id of the element to be added')
+        id = input('Tell me id of the element to be added ')
         cur.execute("INSERT INTO providers (name, city, phone_number, id) values (%s, %s, %s, %s)", (name, city, phone_number, id))
         con.commit()
         print('Random object created in providers')
@@ -212,7 +222,7 @@ def random_create():
         fuel = random.choice(type_arr)
         gas_station = random.randint(1, 25)
         date = random.choice(date_arr)
-        id = input('Tell me id of the element to be added')
+        id = input('Tell me id of the element to be added ')
         salesman = random.choice(name_arr)
         liters = random.randint(1, 50)
         cur.execute("INSERT INTO sales (fuel, gas_station, date, id, salesman, liters) values (%s, %s, %s, %s, %s, %s)",
@@ -235,7 +245,7 @@ def search_by_date_sales():
 def search_by_listed_fuel():
     con = server_conncetion()
     cur = con.cursor()
-    value = input('Enter True or False')
+    value = input('Enter True or False ')
     cur.execute(f"SELECT id, listed, price, provider, type FROM fuel WHERE listed = '{value}' ")
     rows = cur.fetchall()
     for r in rows:
@@ -266,7 +276,7 @@ def word_search():
         for r in rows:
             print(f"[id] {r[0]}  [listed]  {r[1]}  [price]  {r[2]}   [provider]  {r[3]}   [type]  {r[4]}")
     if table == 'providers':
-        cur.execute(f"SELECT * FROM providers WHERE {column} LIKE '%{phrase}%'")
+        cur.execute(f"SELECT id, name, phone_number, city FROM providers WHERE {column} LIKE '%{phrase}%'")
         rows = cur.fetchall()
         for r in rows:
             print(f"[id]  {r[0]}  [name]  {r[1]}  [phone_number]  {r[2]}  [city]  {r[3]}")
@@ -277,4 +287,3 @@ def word_search():
             print(f"[id]  {r[0]}  [gas_station]  {r[1]}  [date]  {r[2]}  [type]  {r[3]}  [salesman]  {r[4]}  [liters]  {r[5]}")
     else:
         print('Incorrect Table name, only allowed -> fuel, -> providers, -> sales ')
-
